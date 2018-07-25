@@ -1,12 +1,4 @@
-Sample Module Repository
+ExifUtils
 ========================
 
-This simple project is an example repo for Python projects.
-
-`Learn more <http://www.kennethreitz.org/essays/repository-structure-and-python>`_.
-
----------------
-
-If you want to learn more about ``setup.py`` files, check out `this repository <https://github.com/kennethreitz/setup.py>`_.
-
-✨🍰✨
+ExifUtils is a simple library of functions written and tested in python 3.5 which allow straightforward editing metadata of jpeg images (and possibly other image formats that follow the Exif format). Usage details and examples coming soon!

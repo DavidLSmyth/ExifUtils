@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from . import helpers
+from ExifUtils.helpers import verify_file_exists, verify_dir_exists, copy_file, convert_png_to_jpg
 #dependencies: 
 #exiftool https://www.sno.phy.queensu.ca/~phil/exiftool/
 #
@@ -8,46 +8,9 @@ import subprocess
 import os
 import sys
 import configparser
-import os
 import datetime
 import re
-import shutil
 import pathlib
-
-#3rd party
-from PIL import Image
-
-########################## move these to helpers ##########################
-def verify_file_exists(file_loc: str) -> bool:
-	return os.path.isfile(file_loc)
-
-def verify_dir_exists(dir_loc: str) -> bool:
-	return os.path.isdir(dir_loc)
-	
-def copy_file(from_file_location: str, to_file_dir: str):
-	'''Copies a png file from one folder to another'''
-	#only tested for png files!
-	if not verify_file_exists(from_file_location):
-		raise Exception("File: {} does not exist".format(from_file_location))
-	if not verify_dir_exists(to_file_dir):
-		raise Exception("File: {} does not exist".format(to_file_dir))
-	
-	if from_file_location[-4:] != '.png':
-		raise Exception("Source file extension must be .png, not {}".format(to_file_location[-3:]))
-	
-	file_name = os.path.basename(from_file_location)
-	shutil.copy2(from_file_location, to_file_dir)
-
-def convert_png_to_jpg(file_location: str, delete_png = True):
-	'''Converts a png file to a jpg file and removes the old png file'''
-	if not verify_file_exists(file_location):
-		raise Exception("File: {} does not exist".format(file_location))
-	if file_location[-4:] != '.png':
-		raise Exception("Source file extension must be .png, not {}".format(file_location[-3:]))
-	#Image.open(file_location).convert('RGB').save(file_location[:-3] + 'jpg')
-	Image.open(file_location).convert('RGB').save(file_location[:-3] + 'jpg',"JPEG", quality = 100)
-	os.remove(file_location)
-########################## move these to helpers ##########################
 
 def get_exiftool_commands(tags_values: dict, image_loc:str):
 	if tags_values:
@@ -79,25 +42,32 @@ def write_exif_comment(image_loc: str, comment = ""):
 	return run_exiftool({'Comment': comment}, image_loc)
 	#subprocess.check_output(["exiftool", 'Comment={}'.format(comment), image_loc])
 	
-def write_exif_date( image_loc: str,date: str):
+def write_exif_date_original( image_loc: str,date: str):
 	'''Writes the date that the image was take at. date should be in the form %Y:%m:%d %H:%M:%S'''
 	return run_exiftool({'datetimeoriginal': date}, image_loc)
 	#subprocess.check_output(["exiftool", '"-datetimeoriginal={}"'.format(date), image_loc])
+	
+def write_exif_date_modified(image_loc: str,date: str):
+	'''Writes the date that the image was take at. date should be in the form %Y:%m:%d %H:%M:%S'''
+	return run_exiftool({'filemodifydate': date}, image_loc)
 	
 def write_author(image_loc, author: str):
 	'''Writes the date that the image was take at. date should be in the form %Y:%m:%d %H:%M:%S'''
 	return run_exiftool({'author': author}, image_loc)
 	#subprocess.check_output(["exiftool", '"-datetimeoriginal={}"'.format(date), image_loc])
 
-def process_image(from_loc: str, to_loc: str, comment: str, tags: "list of strings", date: str, 
+def process_image(from_file_location: str, to_dir_location: str, comment: str, tags: "list of strings", date: str, 
 	gps_lat: float, gps_long: float, gps_alt: float = 32):
 	'''Given a raw png image and metadata about that image, copies it to a specified location 
 	in jpg format and writes metadata to exif'''
-	copy_file(from_loc, to_loc)
-	convert_png_to_jpg(to_loc)
-	write_exif_gps_data(to_loc, gps_lat, gps_long, gps_alt)
-	write_exif_comment(comment)
-	write_exif_date(str(date))
+	copy_file(from_file_location, to_dir_location)
+	file_name = os.path.basename(from_file_location)
+	copied_png_location = pathlib.Path(to_dir_location).joinpath(file_name)
+	print("converting {} to a jpg".format(str(copied_png_location)))
+	jpg_location = convert_png_to_jpg(str(copied_png_location))
+	write_exif_gps_data(str(jpg_location), gps_lat, gps_long, gps_alt)
+	write_exif_comment(str(jpg_location),comment)
+	write_exif_date_original(str(jpg_location), str(date))
 	
 def get_exif_data(image_loc: str) -> bytes:
 	return run_exiftool({}, image_loc)

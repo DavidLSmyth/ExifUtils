@@ -4,6 +4,7 @@
 import os
 import pathlib
 import collections
+import datetime
 
 from ExifUtils.core import (copy_file, convert_png_to_jpg, get_exiftool_commands,
 run_exiftool, write_exif_gps_data, write_exif_comment, write_exif_date,
@@ -61,7 +62,8 @@ class BasicTestSuite(unittest.TestCase):
 		self.assertTrue(get_exif_data_json(str(self.base_path.joinpath("TestImages/JPGImages/Dice.jpg")))['GPS Latitude'] == '15 deg 7\' 24.42" N')
 		
 	def test_write_exif_date(self):
-		pass
+		write_exif_date(str(self.base_path.joinpath("TestImages/JPGImages/Dice.jpg")), str(datetime.datetime.now()))
+		self.assertTrue((get_exif_data_json(str(self.base_path.joinpath("TestImages/JPGImages/Dice.jpg")))['']
 		
 	def test_write_exif_comment(self):
 		pass

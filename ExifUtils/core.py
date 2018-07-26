@@ -79,12 +79,12 @@ def write_exif_comment(image_loc: str, comment = ""):
 	return run_exiftool({'Comment': comment}, image_loc)
 	#subprocess.check_output(["exiftool", 'Comment={}'.format(comment), image_loc])
 	
-def write_exif_date(date: str, image_loc: str):
+def write_exif_date( image_loc: str,date: str):
 	'''Writes the date that the image was take at. date should be in the form %Y:%m:%d %H:%M:%S'''
 	return run_exiftool({'datetimeoriginal': date}, image_loc)
 	#subprocess.check_output(["exiftool", '"-datetimeoriginal={}"'.format(date), image_loc])
 	
-def write_author(author: str, image_loc):
+def write_author(image_loc, author: str):
 	'''Writes the date that the image was take at. date should be in the form %Y:%m:%d %H:%M:%S'''
 	return run_exiftool({'author': author}, image_loc)
 	#subprocess.check_output(["exiftool", '"-datetimeoriginal={}"'.format(date), image_loc])

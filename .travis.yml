@@ -2,6 +2,9 @@ language: python
 python:
 - "3.5"
 
+deploy:
+ skip_cleanup: true
+
 install:
 - pip install -r requirements.txt
 
